@@ -7,11 +7,11 @@ if [ -e $id ]; then
         echo "school file does not exist"
 	exit 1
 fi
-if [ !-s $name ];then
+if [ !-s $id ];then
         echo "school file is empty"
 else
 	echo "school file is not empty"
 fi
-if [ -f $name ]; then
+if [ -f $id ]; then
 	echo "school is a regular file"
 fi
