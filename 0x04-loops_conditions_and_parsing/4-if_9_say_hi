@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+#Bash Shell script with a condition print statement while,if
+b=1
+while [ $b -le 10 ]
+do
+	echo "Best School"
+	if [ $b -eq 9 ]
+	then
+		echo "Hi"
+	fi
+	((b=b+1))
+done
