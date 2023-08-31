@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#Write a Bash script that prints Best School 10 times using until
+b=10
+until [ $b -lt 1 ]
+do
+	echo "Best School"
+	((b=b-1))
+done
