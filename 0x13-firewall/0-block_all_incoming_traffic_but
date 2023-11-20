@@ -1,5 +1,5 @@
 #!usr/bin/env bash
-#install the ufw firewall and setup
+#install the ufw firewall
 
 sudo ufw enable
 sudo ufw status verbose
