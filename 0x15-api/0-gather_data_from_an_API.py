@@ -26,5 +26,6 @@ def todofunc():
     for i in range(0, count):
         print("\t {}".format(titles[i]))
 
-        if __name__ == "__main__":
-            todofunc ()
+
+if __name__ == "__main__":
+    todofunc()
