@@ -2,38 +2,29 @@
 '''
 Export to JSON
 '''
+from json import loads, dumps
+from requests import get
+from sys import argv
 
-import requests
-import sys
-
-
-def todojson():
-    ''' function that gets todo tasks and exports data to json file '''
-    r = requests.get('https://jsonplaceholder.typicode.com/users/{}'
-                     .format(sys.argv[1]))
-    new = r.json()
-    name = new.get('username')
-    userid = new.get('id')
-    r = requests.get('https://jsonplaceholder.typicode.com/users/{}/todos'
-                     .format(sys.argv[1]))
-    new = r.json()
-    size = len(new)
-    stat = []
-    titles = []
-    for i in range(0, size):
-        if new[i].get('completed'):
-            stat.append("true")
-        else:
-            stat.append("false")
-        titles.append(new[i].get('title'))
-    with open("{}.json".format(userid), 'w') as f:
-        f.write('{' + '"{}"'.format(userid)+': [')
-        for i in range(0, size - 1):
-            f.write('{{"task": "{}", "completed": {}, "username": "{}"}}, '
-                    .format(titles[i], stat[i], name))
-        f.write('{{"task": "{}", "completed": {}, "username": "{}"}}'
-                .format(titles[-1], stat[-1], name))
-        f.write(''']}''')
 
 if __name__ == "__main__":
-    todojson()
+    user_id = argv[1]
+
+    user_response = get('https://jsonplaceholder.typicode.com/users/' +
+                        user_id)
+    username = loads(user_response.text)['username']
+
+    todo_response = get('https://jsonplaceholder.typicode.com/users/' +
+                        user_id + '/todos')
+    todo_list = loads(todo_response.text)
+
+    user_task_dict = {user_id: []}
+    for task in todo_list:
+        formatted_task = {}
+        formatted_task['task'] = task['title']
+        formatted_task['completed'] = task['completed']
+        formatted_task['username'] = username
+        user_task_dict[user_id].append(formatted_task)
+
+    with open(user_id + '.json', mode='w') as json_file:
+        json_file.write(dumps(user_task_dict))
