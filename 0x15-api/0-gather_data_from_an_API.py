@@ -1,30 +1,31 @@
 #!/usr/bin/python3
 """ Gather data from an API
 """
-from json import loads
-from requests import get
-from sys import argv
+import requests
+import sys
+
+
+def todofunc():
+    ''' function that gets todo tasks and prints the completed tasks '''
+    r = requests.get('https://jsonplaceholder.typicode.com/users/{}'
+                     .format(sys.argv[1]))
+    new = r.json()
+    name = new.get('name')
+    r = requests.get('https://jsonplaceholder.typicode.com/users/{}/todos'
+                     .format(sys.argv[1]))
+    new = r.json()
+    size = len(new)
+    titles = []
+    count = 0
+    for i in range(0, size):
+        if new[i].get('completed'):
+            count += 1
+            titles.append(new[i].get('title'))
+
+    print("Employee {} is done with tasks({}/{}):".format(name, count, size))
+    for i in range(0, count):
+                print("\t {}".format(titles[i]))
 
 
 if __name__ == "__main__":
-    user_id = argv[1]
-
-    user_response = get('https://jsonplaceholder.typicode.com/users/' +
-                        user_id)
-    user_name = loads(user_response.text)['name']
-
-    todo_response = get('https://jsonplaceholder.typicode.com/users/' +
-                        user_id + '/todos')
-    todo_list = loads(todo_response.text)
-
-    total_tasks = len(todo_list)
-    completed_tasks = []
-    for task in todo_list:
-        if task['completed'] is True:
-            completed_tasks.append(task)
-
-    print('Employee {} is done with tasks({}/{}):'.format(user_name,
-                                                          len(completed_tasks),
-                                                          total_tasks))
-    for task in completed_tasks:
-        print('\t {}'.format(task['title']))
+    todofunc()
