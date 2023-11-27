@@ -2,31 +2,26 @@
 '''
 Export to CSV
 '''
+import csv
+from json import loads
+from requests import get
+from sys import argv
 
-import requests
-import sys
-
-
-def todocsv():
-    ''' function that gets todo tasks and exports data to csv file '''
-    r = requests.get('https://jsonplaceholder.typicode.com/users/{}'
-                     .format(sys.argv[1]))
-    new = r.json()
-    name = new.get('username')
-    userid = new.get('id')
-    r = requests.get('https://jsonplaceholder.typicode.com/users/{}/todos'
-                     .format(sys.argv[1]))
-    new = r.json()
-    size = len(new)
-    stat = []
-    titles = []
-    for i in range(0, size):
-        stat.append(new[i].get('completed'))
-        titles.append(new[i].get('title'))
-    with open("{}.csv".format(userid), 'w') as f:
-        for i in range(0, size):
-            f.write('"{}","{}","{}","{}"\n'.format(userid, name,
-                                                   stat[i], titles[i]))
 
 if __name__ == "__main__":
-    todocsv()
+    user_id = argv[1]
+
+    user_response = get('https://jsonplaceholder.typicode.com/users/' +
+                        user_id)
+    username = loads(user_response.text)['username']
+
+    todo_response = get('https://jsonplaceholder.typicode.com/users/' +
+                        user_id + '/todos')
+    todo_list = loads(todo_response.text)
+
+    with open(user_id + '.csv', mode='w') as csv_file:
+        task_writer = csv.writer(csv_file, delimiter=',', quotechar='"',
+                                 quoting=csv.QUOTE_ALL)
+        for task in todo_list:
+            task_writer.writerow([user_id, username, task['completed'],
+                                  task['title']])
