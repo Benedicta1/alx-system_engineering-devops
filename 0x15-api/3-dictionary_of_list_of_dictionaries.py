@@ -2,31 +2,29 @@
 """
 Dictionary of list of dictionaries
 """
-from json import loads, dumps
-from requests import get
-from sys import argv
+import json
+import requests
 
 
-if __name__ == "__main__":
-    users_response = get('https://jsonplaceholder.typicode.com/users')
-    user_list = loads(users_response.text)
+def todojson():
+    ''' function that gets todo tasks and exports data to json file '''
+    ur = requests.get('https://jsonplaceholder.typicode.com/users').json()
+    tr = requests.get('https://jsonplaceholder.typicode.com/todos').json()
+    users_data = {}
+    for i in ur:
+        userid = i.get('id')
+        username = i.get('username')
+        todos = list(filter(lambda x: x.get('userId') == userid, tr))
+        user_data = list(map(
+            lambda x: {
+                'username': username,
+                'task': x.get('title'),
+                'completed': x.get('completed')
+            }, todos))
+        users_data['{}'.format(userid)] = user_data
+    with open('todo_all_employees.json', 'w') as f:
+        json.dump(users_data, f)
 
-    todos_response = get('https://jsonplaceholder.typicode.com/todos')
-    task_list = loads(todos_response.text)
 
-    user_task_dict = {}
-    for user in user_list:
-        user_id = user['id']
-        username = user['username']
-        user_task_dict[user_id] = []
-        gen = (task for task in task_list
-               if task['userId'] == user_id)
-        for task in gen:
-            formatted_task = {}
-            formatted_task['task'] = task['title']
-            formatted_task['completed'] = task['completed']
-            formatted_task['username'] = username
-            user_task_dict[user_id].append(formatted_task)
-
-    with open('todo_all_employees.json', mode='w') as json_file:
-        json_file.write(dumps(user_task_dict))
+if __name__ == '__main__':
+    todojson()
